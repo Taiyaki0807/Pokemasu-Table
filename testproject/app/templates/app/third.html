@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第3回 ジムバトル結果</title>
+    <style>
+        table {
+            table-layout: fixed;
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <th>HP</th>
+            <th>ラウンド</th>
+            {% for leader in leaders %}
+            <th>{{ leader }}</th>
+            {% endfor %}
+        </tr>
+
+        {% for r in rounds %}
+        <tr>
+            <td>{{ r.hp }}</td>
+            <td>{{ r.name }}</td>
+
+            {% for leader in leaders %}
+            <td>
+                {% if "Ex" in r.name %}
+                    <select name="{{ r.name }}_{{ leader }}">
+                        <option value="">未選択</option>
+                        <option value="one">1</option>
+                        <option value="two">2</option>
+                        <option value="therd">3</option>
+                    </select>
+                    <select name="{{ r.name }}_{{ leader }}">
+                        <option value="">未選択</option>
+                        <option value="one">1</option>
+                        <option value="two">2</option>
+                        <option value="therd">3</option>
+                    </select>
+                    <select name="{{ r.name }}_{{ leader }}">
+                        <option value="">未選択</option>
+                        <option value="one">1</option>
+                        <option value="two">2</option>
+                        <option value="therd">3</option>
+                    </select>
+                {% else %}
+                    <select name="{{ r.name }}_{{ leader }}">
+                        <option value="">3</option>
+                    </select>
+                {% endif %}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
