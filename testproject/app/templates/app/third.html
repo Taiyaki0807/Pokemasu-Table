@@ -3,70 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>第3回 ジムバトル結果</title>
+    <title>第3回 ジムバトルテーブル</title>
     <style>
-        table {
-            table-layout: fixed;
-            border-collapse: collapse;
-            width: 100%;
-            max-width: 1200px;
-            margin-top: 20px;
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
+
+        .spacer {
+            flex-grow: 1;
+        }
+
+        .table-container {
+            overflow: auto;
+            max-height: 80vh; 
+            border: 1px solid #ccc;
+        }
+
+        table {
+            border-collapse: collapse;
+            white-space: nowrap; 
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .sticky-col {
+            position: sticky;
+            left: 0;
+            z-index: 3;
+            background-color: #f2f2f2;
+        }
+        .sticky-col-2 {
+            position: sticky;
+            left: 80px; 
+            z-index: 3;
+            background-color: #f2f2f2;
+        }
+
         th, td {
             border: 1px solid #333;
-            padding: 8px;
+            padding: 12px 15px; 
             text-align: center;
         }
-        th {
-            background-color: #f2f2f2;
+
+        select {
+            padding: 5px;
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
+    <a href="{% url 'home_page'%}">戻る</a>
+    <a href="{% url 'ticket_page'%}">残りチケット</a>
+<div class="spacer"></div>
+
+<div class="table-container">
     <table>
-        <tr>
-            <th>HP</th>
-            <th>ラウンド</th>
-            {% for leader in leaders %}
-            <th>{{ leader }}</th>
-            {% endfor %}
-        </tr>
+        <thead>
+            <tr bgcolor="#b3cc80">
+                <th rowspan="2" class="sticky-col" style="min-width: 80px;">HP</th>
+                <th rowspan="2" class="sticky-col-2" style="min-width: 80px;">ラウンド</th>
+                {% for leader in leaders %}
+                <th colspan="3" bgcolor="{{ leader.color }}">
+                    {{ leader.name }}
+                </th>
+                {% endfor %}
+            </tr>
+            <tr bgcolor="#f2f2f2">
+                {% for leader in leaders %}
+                <th>役割</th>
+                <th>メンバー</th>
+                <th>枚数</th>
+                {% endfor %}
+            </tr>
+        </thead>
 
-        {% for r in rounds %}
-        <tr>
-            <td>{{ r.hp }}</td>
-            <td>{{ r.name }}</td>
-
-            {% for leader in leaders %}
-            <td>
+        <tbody>
+            {% for r in rounds %}
                 {% if "Ex" in r.name %}
-                    <select name="{{ r.name }}_{{ leader }}">
-                        <option value="">未選択</option>
-                        <option value="one">1</option>
-                        <option value="two">2</option>
-                        <option value="therd">3</option>
-                    </select>
-                    <select name="{{ r.name }}_{{ leader }}">
-                        <option value="">未選択</option>
-                        <option value="one">1</option>
-                        <option value="two">2</option>
-                        <option value="therd">3</option>
-                    </select>
-                    <select name="{{ r.name }}_{{ leader }}">
-                        <option value="">未選択</option>
-                        <option value="one">1</option>
-                        <option value="two">2</option>
-                        <option value="therd">3</option>
-                    </select>
+                <tr>
+                    <td rowspan="3" class="sticky-col">{{ r.hp }}</td>
+                    <td rowspan="3" class="sticky-col-2">{{ r.name }}</td>
+                    {% for leader in leaders %}
+                    <td bgcolor="#ffe0e0">
+                        <select name="{{ r.name }}_{{ leader }}_role_1">
+                            <option value="">-</option>
+                            <option value="asist">アシスト</option>
+                            <option value="attacker">アタッカー</option>
+                            <option value="laast">残飯</option>
+                        </select>
+                    </td>
+                    <td bgcolor="#ffe0e0">
+                        <select name="{{ r.name }}_{{ leader }}_member_1">
+                            <option value="member">-</option>
+                        </select>
+                    </td>
+                    <td bgcolor="#ffe0e0">
+                        <select name="{{ r.name }}_{{ leader }}_count_1">
+                            <option value="">未選択</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    {% for leader in leaders %}
+                    <td bgcolor="#ffe0e0">
+                        <select name="{{ r.name }}_{{ leader }}_role_2">
+                            <option value="">-</option>
+                            <option value="asist">アシスト</option>
+                            <option value="attacker">アタッカー</option>
+                            <option value="laast">残飯</option>
+                        </select>
+                    </td>
+                    <td bgcolor="#ffe0e0">
+                        <select name="{{ r.name }}_{{ leader }}_member_2">
+                            <option value="member">-</option>
+                        </select>
+                    </td>
+                    <td bgcolor="#ffe0e0">
+                        <select name="{{ r.name }}_{{ leader }}_count_2">
+                            <option value="">未選択</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    {% for leader in leaders %}
+                    <td bgcolor="#ffe0e0">
+                        <select name="{{ r.name }}_{{ leader }}_role_3">
+                            <option value="">-</option>
+                            <option value="asist">アシスト</option>
+                            <option value="attacker">アタッカー</option>
+                            <option value="laast">残飯</option>
+                        </select>
+                    </td>
+                    <td bgcolor="#ffe0e0">
+                        <select name="{{ r.name }}_{{ leader }}_member_3">
+                            <option value="member">-</option>
+                        </select>
+                    </td>
+                    <td bgcolor="#ffe0e0">
+                        <select name="{{ r.name }}_{{ leader }}_count_3">
+                            <option value="">未選択</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </td>
+                    {% endfor %}
+                </tr>
                 {% else %}
-                    <select name="{{ r.name }}_{{ leader }}">
-                        <option value="">3</option>
-                    </select>
+                <tr>
+                    <td class="sticky-col">{{ r.hp }}</td>
+                    <td class="sticky-col-2">{{ r.name }}</td>
+                    {% for leader in leaders %}
+                    <td>
+                        <select name="{{ r.name }}_{{ leader }}_role">
+                            <option value="attacker">アタッカー</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select name="{{ r.name }}_{{ leader }}_member">
+                            <option value="member">-</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select name="{{ r.name }}_{{ leader }}_count" style="width: 95%;">
+                            <option value="3">3</option>
+                            <option value="">未選択</option>
+                        </select>
+                    </td>
+                    {% endfor %}
+                </tr>
                 {% endif %}
-            </td>
             {% endfor %}
-        </tr>
-        {% endfor %}
+        </tbody>
     </table>
+</div>
 </body>
 </html>
