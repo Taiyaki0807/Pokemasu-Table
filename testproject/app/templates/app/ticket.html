@@ -1,13 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>チケットシート</title>
+    <style>
+        table {
+        width: 50%;
+        border-collapse: collapse;
+        margin: 0 auto;
+        }
+        th, td {
+        border: 1px solid #ccc;
+        padding: 4px 8px;
+        text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <a href="{% url 'third_page'%}">シートへ</a>
-    <h1>hello world</h1>
-    
-</body>
+    <div style="display: flex; align-items: flex-start; gap: 30px;">
+
+        <div>
+            <a href="{% url 'third_page' %}">シートへ</a>
+            
+            <form method="POST" style="margin-top: 20px;">
+                {% csrf_token %}
+                <input type="text" name="name" placeholder="新しい名前を入力" required style="display: block; margin-bottom: 10px;">
+                <button type="submit" name="add_member">追加</button>
+            </form>
+        </div>
+
+        <table style="width: 50%; margin: 0;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th>メンバー</th>
+                    <th>残り枚数</th>
+                    <th>使用枚数</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in members %}
+                <tr>
+                    <td>{{ m.name }}</td>
+                    <td>{{ m.remaining }}</td>
+                    <td style="text-align: center;"><span class="used">{{ m.used }}</span></td>
+                    <td>
+                        <form method="POST" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="delete_id" value="{{ m.id }}">
+                            <button type="submit" onclick="return confirm('{{ m.name }} を削除してもよろしいですか？')">削除</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td>-</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                {% endfor %}
+                
+                <tr style="font-weight: bold; background-color: #e6f7ff;">
+                    <td>計</td>
+                    <td>{{ total_ticket }}</td>
+                    <td>{{ total_used }}</td>
+                </tr>
+            </tbody>
+        </table>
+        
+    </div> </body>
 </html>
