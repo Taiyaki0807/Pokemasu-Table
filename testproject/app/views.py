@@ -32,7 +32,7 @@ def third(request):
     for i in range(6, 31):
         round_data.append({'hp': exn_hp, 'name': f'Ex{i}'})
         
-    if request.method == "POST":
+    if request.method == "POST": 
         for key, value in request.POST.items():
             if "_count" in key and value:
                 member_key = key.replace("_count", "_member")
@@ -76,6 +76,8 @@ def ticket(request):
         used = Result.objects.filter(member=m).aggregate(Sum('tickets_used'))['tickets_used__sum'] or 0
         m.used = used
         m.remaining = 30 - used
+        if m.used > 30: # チケット使用数が30を超える場合の処理
+            pass
 
     total_ticket = sum(m.remaining for m in members)
     total_used = sum(m.used for m in members)

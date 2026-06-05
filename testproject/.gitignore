@@ -1,0 +1,45 @@
+# .gitignore
+ 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+ 
+# venv
+venv/
+ 
+# Django
+*.sqlite3
+/staticfiles/
+media/
+ 
+# Env
+.env
+.env.*
+ 
+# VSCode
+.vscode/
+ 
+# PyCharm
+.idea/
+ 
+# Byte-compiled / cache
+*.egg
+*.egg-info/
+.eggs/
+*.manifest
+*.spec
+ 
+# MyPy
+.mypy_cache/
+ 
+# Pipenv / Poetry
+Pipfile.lock
+poetry.lock
+ 
+# Logs
+*.log
+ 
+# macOS
+.DS_Store
+Thumbs.db
