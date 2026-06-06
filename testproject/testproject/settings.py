@@ -129,3 +129,4 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+SITE_PASSWORD = os.getenv("SITE_PASSWORD", "pokemasu")

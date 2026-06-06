@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン</title>
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --surface: #ffffff;
+            --text: #1f2937;
+            --muted: #687385;
+            --line: #dbe3ea;
+            --accent: #2f80ed;
+            --accent-dark: #1d63bd;
+            --danger: #d64545;
+            --danger-soft: #fff0f0;
+            --shadow: 0 18px 40px rgba(31, 41, 55, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif;
+        }
+
+        .login-panel {
+            width: min(100%, 420px);
+            padding: 28px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            line-height: 1.2;
+            letter-spacing: 0;
+        }
+
+        .lead {
+            margin: 0 0 22px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--muted);
+        }
+
+        input {
+            width: 100%;
+            min-height: 46px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 0 12px;
+            color: var(--text);
+            font: inherit;
+        }
+
+        input:focus {
+            outline: 3px solid rgba(47, 128, 237, 0.18);
+            border-color: var(--accent);
+        }
+
+        button {
+            width: 100%;
+            min-height: 46px;
+            margin-top: 14px;
+            border: 0;
+            border-radius: 8px;
+            background: var(--accent);
+            color: #ffffff;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 900;
+        }
+
+        button:hover {
+            background: var(--accent-dark);
+        }
+
+        .error {
+            margin: 0 0 14px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: var(--danger-soft);
+            color: var(--danger);
+            font-size: 14px;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+    <main class="login-panel">
+        <h1>ログイン</h1>
+        <p class="lead">パスワードを知っている人だけ入れます。</p>
+
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            <label for="password">パスワード</label>
+            <input id="password" type="password" name="password" autocomplete="current-password" required autofocus>
+            <button type="submit">入る</button>
+        </form>
+    </main>
+</body>
+</html>

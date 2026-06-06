@@ -3,11 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>ジムバトルテーブル</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            background: #f5f7fb;
+            color: #1f2937;
+            font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif;
+        }
+
+        main {
+            width: min(100%, 520px);
+            padding: 28px;
+            border: 1px solid #dbe3ea;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 18px 40px rgba(31, 41, 55, 0.08);
+        }
+
+        h1 {
+            margin: 0 0 20px;
+            font-size: 32px;
+            line-height: 1.2;
+            letter-spacing: 0;
+        }
+
+        .links {
+            display: grid;
+            gap: 10px;
+        }
+
+        a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            border: 1px solid #dbe3ea;
+            border-radius: 8px;
+            color: #1f2937;
+            text-decoration: none;
+            font-weight: 800;
+        }
+
+        a:hover {
+            color: #2f80ed;
+            border-color: #b9d3f6;
+        }
+    </style>
 </head>
 <body>
-    <h1>ジムバトルテーブル</h1>
-    <a href="{% url 'third_page'%}">第3回</a>
-    
+    <main>
+        <h1>ジムバトルテーブル</h1>
+        <div class="links">
+            <a href="{% url 'third_page' %}">第3回</a>
+            <a href="{% url 'ticket_page' %}">残りチケット</a>
+            <a href="{% url 'logout_page' %}">ログアウト</a>
+        </div>
+    </main>
 </body>
 </html>

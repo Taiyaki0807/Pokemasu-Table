@@ -1,11 +1,50 @@
+from functools import wraps
+from hmac import compare_digest
+
+from django.conf import settings
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.urls import reverse
 from .models import Member, Result
 from django.db.models import Sum
 
+def password_required(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if request.session.get("site_unlocked"):
+            return view_func(request, *args, **kwargs)
+
+        login_url = f"{reverse('login_page')}?next={request.path}"
+        return redirect(login_url)
+
+    return wrapper
+
+def login_page(request):
+    if request.session.get("site_unlocked"):
+        return redirect(request.GET.get("next") or "home_page")
+
+    error = ""
+    if request.method == "POST":
+        password = request.POST.get("password", "")
+        if compare_digest(password, settings.SITE_PASSWORD):
+            request.session["site_unlocked"] = True
+            return redirect(request.POST.get("next") or "home_page")
+
+        error = "パスワードが違います。"
+
+    return render(request, "app/login.html", {
+        "error": error,
+        "next": request.GET.get("next", ""),
+    })
+
+def logout_page(request):
+    request.session.flush()
+    return redirect("login_page")
+
+@password_required
 def index(request):
     return render(request, "app/home.html")
 
+@password_required
 def third(request):
     exn_hp = '22,170,000'
     leaders = [
@@ -58,6 +97,7 @@ def third(request):
     return render(request, "app/third.html", {
         "rounds": round_data, "leaders": leaders, "members": members, "results_dict": results_dict})
 
+@password_required
 def ticket(request):
     if request.method == "POST":
         if "add_member" in request.POST:
