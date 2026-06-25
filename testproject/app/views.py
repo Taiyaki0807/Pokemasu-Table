@@ -1,4 +1,4 @@
-from functools import wraps
+﻿from functools import wraps
 from hmac import compare_digest
 
 from django.conf import settings
@@ -8,12 +8,16 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from .models import Member, Result
 from django.db.models import Sum
 
+MAX_TICKETS_PER_MEMBER = 30
+
+
 def safe_next_url(request):
     next_url = request.POST.get("next") or request.GET.get("next") or ""
     if url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
         return next_url
 
     return reverse("home_page")
+
 
 def password_required(view_func):
     @wraps(view_func)
@@ -25,6 +29,7 @@ def password_required(view_func):
         return redirect(login_url)
 
     return wrapper
+
 
 def login_page(request):
     if request.session.get("site_unlocked"):
@@ -44,13 +49,16 @@ def login_page(request):
         "next": request.GET.get("next", ""),
     })
 
+
 def logout_page(request):
     request.session.flush()
     return redirect("login_page")
 
+
 @password_required
 def index(request):
     return render(request, "app/home.html")
+
 
 @password_required
 def third(request):
@@ -78,21 +86,54 @@ def third(request):
     members = Member.objects.all()
     for i in range(6, 31):
         round_data.append({'hp': exn_hp, 'name': f'Ex{i}'})
-        
-    if request.method == "POST": 
+
+    save_error = ""
+
+    if request.method == "POST":
+        planned_results = {}
         for key, value in request.POST.items():
             if "_count" in key and value:
                 member_key = key.replace("_count", "_member")
                 member_name = request.POST.get(member_key)
-                
+
                 if member_name:
                     member_obj = Member.objects.filter(name=member_name).first()
                     if member_obj:
-                        Result.objects.update_or_create(
-                            round_leader_key=key,
-                            defaults={'member': member_obj, 'tickets_used': int(value)}
-                        )
-        return redirect("third_page")
+                        planned_results[key] = {
+                            "member": member_obj,
+                            "tickets_used": int(value),
+                        }
+
+        changed_keys = list(planned_results.keys())
+        totals_by_member_id = {}
+        existing_results = Result.objects.exclude(round_leader_key__in=changed_keys)
+
+        for row in existing_results.values("member_id").annotate(total=Sum("tickets_used")):
+            totals_by_member_id[row["member_id"]] = row["total"] or 0
+
+        for result in planned_results.values():
+            member_id = result["member"].id
+            totals_by_member_id[member_id] = totals_by_member_id.get(member_id, 0) + result["tickets_used"]
+
+        over_member_ids = [
+            member_id
+            for member_id, total in totals_by_member_id.items()
+            if total > MAX_TICKETS_PER_MEMBER
+        ]
+
+        if over_member_ids:
+            over_names = Member.objects.filter(id__in=over_member_ids).values_list("name", flat=True)
+            save_error = f"30枚を超えるメンバーがいるため保存できません: {', '.join(over_names)}"
+        else:
+            for key, result in planned_results.items():
+                Result.objects.update_or_create(
+                    round_leader_key=key,
+                    defaults={
+                        'member': result["member"],
+                        'tickets_used': result["tickets_used"],
+                    }
+                )
+            return redirect("third_page")
 
     saved_data = Result.objects.select_related('member').all()
     results_dict = {}
@@ -103,7 +144,13 @@ def third(request):
         }
 
     return render(request, "app/third.html", {
-        "rounds": round_data, "leaders": leaders, "members": members, "results_dict": results_dict})
+        "rounds": round_data,
+        "leaders": leaders,
+        "members": members,
+        "results_dict": results_dict,
+        "save_error": save_error,
+    })
+
 
 @password_required
 def ticket(request):
@@ -112,20 +159,18 @@ def ticket(request):
             name = request.POST.get("name")
             if name and Member.objects.count() < 20:
                 Member.objects.create(name=name)
-        
+
         elif "delete_id" in request.POST:
             delete_id = request.POST.get("delete_id")
             Member.objects.filter(id=delete_id).delete()
-            
+
         return redirect("ticket_page")
-    
+
     members = Member.objects.all()
     for m in members:
         used = Result.objects.filter(member=m).aggregate(Sum('tickets_used'))['tickets_used__sum'] or 0
         m.used = used
-        m.remaining = 30 - used
-        if m.used > 30: # チケット使用数が30を超える場合の処理
-            pass
+        m.remaining = MAX_TICKETS_PER_MEMBER - used
 
     total_ticket = sum(m.remaining for m in members)
     total_used = sum(m.used for m in members)
