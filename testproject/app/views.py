@@ -4,8 +4,16 @@ from hmac import compare_digest
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from .models import Member, Result
 from django.db.models import Sum
+
+def safe_next_url(request):
+    next_url = request.POST.get("next") or request.GET.get("next") or ""
+    if url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+        return next_url
+
+    return reverse("home_page")
 
 def password_required(view_func):
     @wraps(view_func)
@@ -20,14 +28,14 @@ def password_required(view_func):
 
 def login_page(request):
     if request.session.get("site_unlocked"):
-        return redirect(request.GET.get("next") or "home_page")
+        return redirect(safe_next_url(request))
 
     error = ""
     if request.method == "POST":
         password = request.POST.get("password", "")
         if compare_digest(password, settings.SITE_PASSWORD):
             request.session["site_unlocked"] = True
-            return redirect(request.POST.get("next") or "home_page")
+            return redirect(safe_next_url(request))
 
         error = "パスワードが違います。"
 
